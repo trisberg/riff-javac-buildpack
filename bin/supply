@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+build_dir=$1
+cache_dir=$2
+deps_dir=$3
+index=$4
+
+buildpack_dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/..
+
+echo "Installing Java SE Development Kit 8"
+if [ -e "$cache_dir/$index/jdk-8u181-linux-x64.tar.gz" ]; then
+  echo "Found jdk-8u181-linux-x64.tar.gz in $cache_dir/$index/"
+else
+  mkdir -p $cache_dir/$index/
+  wget --header "Cookie: oraclelicense=accept-securebackup-cookie" -nv http://download.oracle.com/otn-pub/java/jdk/8u181-b13/96a7b8442fe848ef90c96a2fad6ed6d1/jdk-8u181-linux-x64.tar.gz -O $cache_dir/$index/jdk-8u181-linux-x64.tar.gz
+fi
+mkdir -p $deps_dir/$index/java
+tar xzf $cache_dir/$index/jdk-8u181-linux-x64.tar.gz -C $deps_dir/$index/java
+
+echo "Installing riff Java function invoker"
+mkdir -p $deps_dir/$index/invoker
+wget -nv http://repo.spring.io/libs-milestone-local/io/projectriff/java-function-invoker/0.0.7/java-function-invoker-0.0.7-exec.jar -O $deps_dir/$index/invoker/java-function-invoker-0.0.7-exec.jar
+
